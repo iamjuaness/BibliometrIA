@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📊 BibliometrIA: AI-Powered Research Intelligence
 
-## Getting Started
+**BibliometrIA** es una plataforma de vanguardia diseñada para transformar la investigación académica mediante el poder de la Inteligencia Artificial Generativa y el análisis de datos avanzado. Optimizada para investigadores, académicos y bibliotecarios, permite procesar archivos de metadatos bibliográficos de forma instantánea y visual.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🤖 El Agente Inteligente (Flowise)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El núcleo de BibliometrIA es un **agente autónomo hospedado en Flowise**, diseñado específicamente para la síntesis de conocimiento científico. Este agente no solo procesa datos estadísticos planos, sino que interpreta redes de colaboración, tendencias emergentes y vacíos de investigación, redactando informes interpretativos de alta calidad.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### ¿Por qué Flowise?
+- **Orquestación Flexible**: Permite integrar modelos de lenguaje de última generación (como Claude 3.5 o GPT-4o) con herramientas de procesamiento de archivos.
+- **Escalabilidad**: Maneja flujos de trabajo complejos de RAG (Retrieval-Augmented Generation) para asegurar que el análisis sea preciso y basado en la evidencia del archivo cargado.
+- **Seguridad**: Proporciona una capa de abstracción robusta para el manejo de claves API y persistencia de memoria durante la sesión de análisis.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🚀 Ventajas para la Investigación Científica
 
-To learn more about Next.js, take a look at the following resources:
+El uso de BibliometrIA ofrece beneficios críticos que aceleran el ciclo de producción científica:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **Ahorro de Tiempo Drástico**: Lo que antes tomaba horas de limpieza manual de datos en Excel o herramientas legacy, BibliometrIA lo resuelve en segundos.
+2.  **Visualización de Tendencias**: Identifica instantáneamente el crecimiento o declive de temas específicos mediante gráficas interactivas de líneas y áreas.
+3.  **Análisis de Productividad**: Visualiza el impacto de autores y revistas de manera clara, facilitando la toma de decisiones sobre dónde publicar o con quién colaborar.
+4.  **Reportes de Alta Calidad (Estilo Springer)**: Genera documentos PDF con formato profesional listos para ser presentados o incluidos en estados del arte de tesis y artículos.
+5.  **Interpretación Semántica**: A diferencia de otras herramientas que solo dan números, nuestro agente IA explica el *por qué* de las tendencias, detectando patrones que el ojo humano podría pasar por alto.
+6.  **Compatibilidad Universal**: Soporta formatos `.ris` provenientes de las principales bases de datos como **Scopus, Web of Science (WoS) y PubMed**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ Tecnologías Utilizadas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+-   **Frontend**: Next.js 15 (App Router), Tailwind CSS v4, Framer Motion.
+-   **Visualización**: Recharts (Gráficas interactivas).
+-   **Exportación**: jsPDF & AutoTable (Generación vectorial de reportes).
+-   **Backend**: API Routes (Procesado de metadatos).
+-   **IA**: Flowise Agent Engine.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 👨‍💻 Desarrolladores
+
+-   **Juan Esteban Cardona** (Dev)
+-   **Juan Esteban Ramirez** (Dev)
+
+---
+
+## 🌐 Acceso Directo
+
+La plataforma está desplegada y lista para su uso en:  
+👉 **[https://bibliometr-ia.vercel.app/](https://bibliometr-ia.vercel.app/)**
+
+---
+
+*Desarrollado con dedicación para la excelencia científica.* 🌟
