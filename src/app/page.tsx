@@ -343,7 +343,6 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-8">
             <button onClick={() => setIsAboutOpen(true)} className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"><Info className="w-4 h-4" />About Us</button>
             <a href="https://github.com/iamjuaness/BibliometrIA" target="_blank" className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"><Github className="w-4 h-4" />Github</a>
-            <button className="px-5 py-2.5 rounded-full bg-slate-900 border border-slate-700 text-sm font-semibold hover:bg-slate-800 transition-all">Launch Agent</button>
           </nav>
           <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <X /> : <Menu />}</button>
         </div>
@@ -376,8 +375,8 @@ export default function Home() {
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <div className="p-5 rounded-2xl bg-white/5 border border-white/10"><h3 className="text-cyan-400 font-bold mb-1 uppercase text-xs">Lead Dev</h3><p className="text-xl font-bold text-white">Juan Esteban Cardona</p></div>
-                <div className="p-5 rounded-2xl bg-white/5 border border-white/10"><h3 className="text-cyan-400 font-bold mb-1 uppercase text-xs">AI Dev</h3><p className="text-xl font-bold text-white">Juan Esteban Ramirez</p></div>
+                <div className="p-5 rounded-2xl bg-white/5 border border-white/10"><h3 className="text-cyan-400 font-bold mb-1 uppercase text-xs">Dev</h3><p className="text-xl font-bold text-white">Juan Esteban Cardona</p></div>
+                <div className="p-5 rounded-2xl bg-white/5 border border-white/10"><h3 className="text-cyan-400 font-bold mb-1 uppercase text-xs">Dev</h3><p className="text-xl font-bold text-white">Juan Esteban Ramirez</p></div>
               </div>
             </motion.div>
           </div>
