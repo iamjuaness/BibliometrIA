@@ -2,26 +2,86 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.98 0.01 240);
+  --foreground: oklch(0.15 0.02 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 240);
+  --primary: oklch(0.55 0.18 200);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9 0.02 240);
+  --secondary-foreground: oklch(0.2 0.02 240);
+  --muted: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.45 0.02 240);
+  --accent: oklch(0.92 0.05 200);
+  --accent-foreground: oklch(0.25 0.15 200);
+  --destructive: oklch(0.5 0.2 15);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.02 240);
+  --input: oklch(0.9 0.02 240);
+  --ring: oklch(0.55 0.18 200);
+  --radius: 1rem;
+}
+
+.dark {
+  --background: oklch(0.1 0.02 240);
+  --foreground: oklch(0.98 0.01 240);
+  --card: oklch(0.12 0.02 245);
+  --card-foreground: oklch(0.98 0.01 240);
+  --popover: oklch(0.12 0.02 245);
+  --popover-foreground: oklch(0.98 0.01 240);
+  --primary: oklch(0.7 0.18 200);
+  --primary-foreground: oklch(0.1 0.02 240);
+  --secondary: oklch(0.2 0.03 245);
+  --secondary-foreground: oklch(0.98 0.01 240);
+  --muted: oklch(0.18 0.02 245);
+  --muted-foreground: oklch(0.7 0.02 240);
+  --accent: oklch(0.25 0.05 200);
+  --accent-foreground: oklch(0.85 0.15 200);
+  --destructive: oklch(0.4 0.15 15);
+  --destructive-foreground: oklch(0.98 0.01 240);
+  --border: oklch(0.2 0.03 245);
+  --input: oklch(0.2 0.03 245);
+  --ring: oklch(0.7 0.18 200);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --font-sans: "Inter", var(--font-geist-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.dark .glass-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
