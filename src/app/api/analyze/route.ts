@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 
     const flowiseUrl =
       process.env.FLOWISE_API_URL ||
-      "http://localhost:3000/api/v1/prediction/93e92736-e072-4d4f-a715-933eb0c2cca7";
+      "http://localhost:3000/api/v1/prediction/8e8ea8f5-42dc-4e78-8e6f-e83315dde5d8";
 
     const response = await fetch(flowiseUrl, {
       method: "POST",

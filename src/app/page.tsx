@@ -19,6 +19,8 @@ import {
   Users,
   Plus,
   Trash2,
+  History,
+  Clock,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -51,10 +53,31 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [researchers, setResearchers] = useState<string[]>([""]);
   const [articleCount, setArticleCount] = useState<number | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chartsRefDaily = useRef<HTMLDivElement>(null);
   const chartsRefAuthors = useRef<HTMLDivElement>(null);
+
+  // Load history on mount
+  React.useEffect(() => {
+    const savedHistory = localStorage.getItem("bibliometria_history");
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Error loading history", e);
+      }
+    }
+  }, []);
+
+  // Save history helper
+  const addToHistory = (newItem: any) => {
+    const updatedHistory = [newItem, ...history.filter(h => h.id !== newItem.id)].slice(0, 3);
+    setHistory(updatedHistory);
+    localStorage.setItem("bibliometria_history", JSON.stringify(updatedHistory));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -141,6 +164,15 @@ export default function Home() {
 
       setResult(data.text);
       setStats(data.stats);
+
+      // Add to history
+      addToHistory({
+        id: Date.now().toString(),
+        fileName: file?.name || "Documento",
+        text: data.text,
+        stats: data.stats,
+        date: new Date().toLocaleString()
+      });
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Ocurrió un error al procesar el archivo.");
@@ -386,6 +418,51 @@ export default function Home() {
           </div>
           <nav className="hidden md:flex items-center gap-8">
             <button onClick={() => setIsAboutOpen(true)} className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"><Info className="w-4 h-4" />About Us</button>
+            
+            {/* History Button */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsHistoryOpen(!isHistoryOpen)} 
+                className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+              >
+                <History className="w-4 h-4" /> Historial
+              </button>
+              <AnimatePresence>
+                {isHistoryOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-4 w-80 glass-card rounded-2xl p-4 border border-white/10 shadow-2xl z-50"
+                  >
+                    <h3 className="text-xs font-bold text-cyan-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <Clock size={14} /> Recientes
+                    </h3>
+                    <div className="space-y-2">
+                      {history.length > 0 ? history.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setResult(item.text);
+                            setStats(item.stats);
+                            setIsHistoryOpen(false);
+                            // Scroll to result
+                            window.scrollTo({ top: 800, behavior: "smooth" });
+                          }}
+                          className="w-full text-left p-3 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all group"
+                        >
+                          <p className="text-sm font-bold text-white truncate mb-1 group-hover:text-cyan-400">{item.fileName}</p>
+                          <p className="text-[10px] text-slate-500">{item.date}</p>
+                        </button>
+                      )) : (
+                        <p className="text-center py-4 text-sm text-slate-500">No hay archivos previos</p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <a href="https://github.com/iamjuaness/BibliometrIA" target="_blank" className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"><Github className="w-4 h-4" />Github</a>
           </nav>
           <button className="md:hidden p-2 text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <X /> : <Menu />}</button>
@@ -490,9 +567,96 @@ export default function Home() {
                 <Plus size={18} /> Agregar investigador
               </button>
             </div>
-            <button onClick={analyzeFile} disabled={!file || isLoading} className="mt-10 px-10 py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-600 to-blue-600 disabled:opacity-50">
-              {isLoading ? "Analizando..." : "Comenzar Análisis"}
+            <button onClick={analyzeFile} disabled={!file || isLoading} className="mt-10 px-10 py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-600 to-blue-600 disabled:opacity-50 relative group overflow-hidden">
+              <span className="relative z-10">
+                {isLoading ? "Analizando Registros..." : "Comenzar Análisis"}
+              </span>
+              {isLoading && (
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500"
+                  animate={{ x: ["-100%", "100%"] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  style={{ opacity: 0.3 }}
+                />
+              )}
             </button>
+
+            {/* Loading Animation */}
+            <AnimatePresence>
+              {isLoading && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="mt-16 flex flex-col items-center"
+                >
+                  <div className="relative w-32 h-32 mb-8">
+                    {/* Pulsing glow background */}
+                    <motion.div 
+                      className="absolute inset-0 bg-cyan-500/10 blur-3xl rounded-full"
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    />
+                    
+                    {/* Rotating Rings */}
+                    <motion.div 
+                      animate={{ rotate: 360 }} 
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 border border-slate-700 rounded-full" 
+                    />
+                    <motion.div 
+                      animate={{ rotate: -360 }} 
+                      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-4 border border-dashed border-cyan-500/20 rounded-full" 
+                    />
+                    
+                    {/* Central Scanning Content */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative">
+                        <BookOpen className="w-14 h-14 text-cyan-400" />
+                        
+                        {/* Scanning "Laser" Line */}
+                        <motion.div 
+                          className="absolute left-[-10px] right-[-10px] h-1 bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.8)] z-10"
+                          animate={{ top: ["0%", "100%", "0%"] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                        
+                        {/* Floating "Data" Particles */}
+                        {[...Array(3)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-cyan-400 rounded-full"
+                            style={{ 
+                              left: `${20 + i * 30}%`,
+                              top: "50%"
+                            }}
+                            animate={{ 
+                              y: [-20, 20],
+                              opacity: [0, 1, 0],
+                              scale: [0, 1, 0]
+                            }}
+                            transition={{ 
+                              duration: 2, 
+                              delay: i * 0.4,
+                              repeat: Infinity,
+                              ease: "easeOut"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-cyan-400 font-bold tracking-[0.3em] uppercase text-[10px] mb-2">BibliometrIA Intelligence</p>
+                    <h4 className="text-xl font-bold text-white mb-2">Escaneando Literatura</h4>
+                    <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                      Nuestra IA está extrayendo información de los {articleCount || ""} artículos cargados...
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
