@@ -17,6 +17,8 @@ import {
   PieChart as PieChartIcon,
   TrendingUp,
   Users,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -47,6 +49,8 @@ export default function Home() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [researchers, setResearchers] = useState<string[]>([""]);
+  const [articleCount, setArticleCount] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chartsRefDaily = useRef<HTMLDivElement>(null);
@@ -66,7 +70,17 @@ export default function Home() {
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFileContent(event.target?.result as string);
+        const content = event.target?.result as string;
+        setFileContent(content);
+        
+        // Count articles: Match lines starting with ER (End of Record)
+        const lines = content.split("\n");
+        const count = lines.filter(line => {
+          const trimmed = line.trim();
+          return trimmed.startsWith("ER  -") || trimmed.startsWith("ER-");
+        }).length;
+        
+        setArticleCount(count);
       };
       reader.readAsText(selectedFile);
     }
@@ -77,8 +91,28 @@ export default function Home() {
     setFileContent("");
     setResult(null);
     setStats(null);
+    setArticleCount(null);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const addResearcher = () => {
+    setResearchers([...researchers, ""]);
+  };
+
+  const updateResearcher = (index: number, value: string) => {
+    const newResearchers = [...researchers];
+    newResearchers[index] = value;
+    setResearchers(newResearchers);
+  };
+
+  const removeResearcher = (index: number) => {
+    if (researchers.length > 1) {
+      const newResearchers = researchers.filter((_, i) => i !== index);
+      setResearchers(newResearchers);
+    } else {
+      setResearchers([""]);
+    }
   };
 
   const analyzeFile = async () => {
@@ -153,15 +187,25 @@ export default function Home() {
       doc.setLineWidth(0.5);
       doc.line(margin, 95, pageWidth - margin, 95);
       doc.setFontSize(14);
-      doc.text("Creadores y Desarrolladores:", margin, 115);
+      doc.text("Investigadores:", margin, 115);
       doc.setFont("times", "normal");
       doc.setFontSize(12);
-      doc.text("• Juan Esteban Cardona", margin + 5, 125);
-      doc.text("• Juan Esteban Ramirez", margin + 5, 132);
+      
+      let coverCursorY = 125;
+      researchers.filter(name => name.trim() !== "").forEach((name) => {
+        doc.text(`• ${name}`, margin + 5, coverCursorY);
+        coverCursorY += 7;
+      });
+
+      if (researchers.filter(name => name.trim() !== "").length === 0) {
+        doc.text("• No especificado", margin + 5, coverCursorY);
+        coverCursorY += 7;
+      }
+
       doc.setFont("times", "bold");
-      doc.text("Fecha:", margin, 150);
+      doc.text("Fecha:", margin, coverCursorY + 5);
       doc.setFont("times", "normal");
-      doc.text(new Date().toLocaleDateString(), margin + 20, 150);
+      doc.text(new Date().toLocaleDateString(), margin + 20, coverCursorY + 5);
       doc.setFont("times", "italic");
       doc.setFontSize(10);
       const abs = "Este documento presenta un análisis bibliometrico avanzado integrando datos estadísticos empíricos visualizados mediante gráficas de tendencia y productividad de autores.";
@@ -400,10 +444,52 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex items-center justify-between p-6 bg-slate-900/50 rounded-3xl border border-slate-700">
-                <div className="flex items-center gap-4"><FileText className="text-cyan-400" /> <span className="font-bold">{file.name}</span></div>
+                <div className="flex items-center gap-4">
+                  <FileText className="text-cyan-400" /> 
+                  <div className="flex flex-col items-start translate-y-0.5">
+                    <span className="font-bold">{file.name}</span>
+                    {articleCount !== null && (
+                      <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">
+                        {articleCount} artículos detectados
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <button onClick={removeFile} className="p-2 hover:bg-red-500/20 rounded-xl"><X className="text-slate-400" /></button>
               </div>
             )}
+
+            {/* Researchers Input Section */}
+            <div className="mt-10 text-left">
+              <label className="block text-sm font-bold text-cyan-500 uppercase tracking-widest mb-4">Investigadores</label>
+              <div className="space-y-3">
+                {researchers.map((name, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => updateResearcher(index, e.target.value)}
+                      placeholder="Nombre del investigador"
+                      className="flex-1 bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
+                    />
+                    {researchers.length > 1 && (
+                      <button
+                        onClick={() => removeResearcher(index)}
+                        className="p-3 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={addResearcher}
+                className="mt-4 flex items-center gap-2 text-sm font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+              >
+                <Plus size={18} /> Agregar investigador
+              </button>
+            </div>
             <button onClick={analyzeFile} disabled={!file || isLoading} className="mt-10 px-10 py-5 rounded-2xl font-bold text-white bg-gradient-to-r from-cyan-600 to-blue-600 disabled:opacity-50">
               {isLoading ? "Analizando..." : "Comenzar Análisis"}
             </button>
