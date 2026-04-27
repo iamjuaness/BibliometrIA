@@ -40,7 +40,7 @@ import {
   Cell,
 } from "recharts";
 import { toPng } from "html-to-image";
-import WordCloud from "react-d3-cloud";
+import { WordCloud, AnimatedWordRenderer } from "@isoterik/react-word-cloud";
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
@@ -88,7 +88,6 @@ export default function Home() {
   const chartsRefAuthors = useRef<HTMLDivElement>(null);
   const chartsRefKeywords = useRef<HTMLDivElement>(null);
   const chartsRefJournals = useRef<HTMLDivElement>(null);
-  const chartsRefCoauth = useRef<HTMLDivElement>(null);
   const chartsRefCloud = useRef<HTMLDivElement>(null);
 
   // Load history on mount
@@ -538,7 +537,6 @@ export default function Home() {
         else if (chartKey === "authors") ref = chartsRefAuthors;
         else if (chartKey === "keywords") ref = chartsRefKeywords;
         else if (chartKey === "journals") ref = chartsRefJournals;
-        else if (chartKey === "coauthorship") ref = chartsRefCoauth;
         else if (chartKey === "wordcloud") ref = chartsRefCloud;
 
         if (ref?.current) {
@@ -1208,20 +1206,53 @@ export default function Home() {
             )}
 
             <div className="mt-10">
-              <label className="block text-xs font-bold text-cyan-500 uppercase tracking-widest mb-4">
+              <label className="block text-xs font-bold text-cyan-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Users size={14} />
                 Investigadores del Proyecto
               </label>
-              <div className="space-y-3">
-                {researchers.map((name, index) => (
-                  <input
-                    key={index}
-                    value={name}
-                    onChange={(e) => updateResearcher(index, e.target.value)}
-                    placeholder="Nombre completo"
-                    className="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 focus:border-cyan-500/50 outline-none"
-                  />
-                ))}
-              </div>
+              <AnimatePresence initial={false}>
+                <div className="space-y-3">
+                  {researchers.map((name, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="text-xs text-slate-500 w-5 text-right shrink-0">
+                        {index + 1}.
+                      </span>
+                      <input
+                        value={name}
+                        onChange={(e) => updateResearcher(index, e.target.value)}
+                        placeholder="Nombre completo del investigador"
+                        className="flex-1 bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500/50 outline-none transition-colors placeholder:text-slate-600"
+                      />
+                      {researchers.length > 1 && (
+                        <button
+                          onClick={() => removeResearcher(index)}
+                          className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all shrink-0"
+                          title="Eliminar investigador"
+                        >
+                          <X size={15} />
+                        </button>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={addResearcher}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-700 text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 hover:bg-cyan-500/5 text-sm font-medium transition-all"
+              >
+                <Plus size={16} />
+                Agregar investigador
+              </motion.button>
             </div>
 
             <button
@@ -1366,49 +1397,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Co-authorship Network Concept */}
-              <div className="glass-card p-8 rounded-[2rem] border border-white/5">
-                <h3 className="font-bold mb-6 flex items-center gap-2">
-                  <Plus size={20} className="text-emerald-400" /> Red de
-                  Coautoría
-                </h3>
-                <div
-                  ref={chartsRefCoauth}
-                  className="h-64 relative bg-slate-950/50 rounded-xl overflow-hidden flex items-center justify-center"
-                >
-                  <svg width="100%" height="100%" viewBox="0 0 200 200">
-                    {stats.coauthorship_links
-                      .slice(0, 20)
-                      .map((l: any, i: number) => (
-                        <motion.line
-                          key={i}
-                          x1={100 + Math.cos(i) * 60}
-                          y1={100 + Math.sin(i) * 60}
-                          x2={100}
-                          y2={100}
-                          stroke="#334155"
-                          strokeWidth="0.5"
-                        />
-                      ))}
-                    {Object.keys(stats.top_10_autores).map((name, i) => (
-                      <circle
-                        key={i}
-                        cx={100 + Math.cos(i) * 60}
-                        cy={100 + Math.sin(i) * 60}
-                        r="4"
-                        fill="#10b981"
-                      />
-                    ))}
-                    <circle cx="100" cy="100" r="8" fill="#3b82f6" />
-                  </svg>
-                  <div className="absolute bottom-4 right-4 text-[8px] text-slate-500 uppercase">
-                    Interactive Network Matrix
-                  </div>
-                </div>
-              </div>
-
-              {/* WordCloud Concept */}
-              <div className="glass-card p-8 rounded-[2rem] border border-white/5">
+              {/* WordCloud */}
+              <div className="glass-card p-8 rounded-[2rem] border border-white/5 col-span-full">
                 <h3 className="font-bold mb-6 flex items-center gap-2">
                   <BookOpen size={20} className="text-purple-400" /> Nube de
                   Conceptos
@@ -1418,23 +1408,34 @@ export default function Home() {
                   className="h-80 bg-slate-950/50 rounded-xl overflow-hidden"
                 >
                   <WordCloud
-                    data={Object.entries(stats.top_20_keywords).map(
+                    words={Object.entries(stats.top_20_keywords).map(
                       ([text, value]) => ({
                         text,
-                        value: (value as number) * 5,
+                        value: (value as number) * 10,
                       }),
                     )}
-                    width={500}
-                    height={300}
-                    font="Inter"
+                    width={600}
+                    height={320}
+                    font="Inter, sans-serif"
                     fontWeight="bold"
-                    fontSize={(word) => Math.log2(word.value) * 8}
-                    spiral="rectangular"
-                    rotate={(word) => (word.value % 2 === 0 ? 0 : 90)}
-                    padding={2}
-                    fill={(d: any, i: number) =>
-                      ["#06b6d4", "#3b82f6", "#8b5cf6", "#f97316"][i % 4]
+                    fontSize={(word) => Math.max(12, Math.log2(word.value) * 7)}
+                    spiral="archimedean"
+                    rotate={() => 0}
+                    padding={4}
+                    fill={(_word: any, index: number) =>
+                      ["#06b6d4", "#3b82f6", "#8b5cf6", "#f97316", "#10b981", "#ec4899"][
+                        index % 6
+                      ]
                     }
+                    renderWord={(data, ref) => (
+                      <AnimatedWordRenderer
+                        ref={ref}
+                        data={data}
+                        animationDelay={(_w: any, i: number) => i * 40}
+                      />
+                    )}
+                    enableTooltip
+                    svgProps={{ style: { width: "100%", height: "100%" } }}
                   />
                 </div>
               </div>
